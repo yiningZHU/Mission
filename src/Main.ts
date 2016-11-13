@@ -27,7 +27,8 @@
 //
 //////////////////////////////////////////////////////////////////////////////////////
 
-class Main extends egret.DisplayObjectContainer {
+class Main extends egret.DisplayObjectContainer 
+{
 
     /**
      * 加载进度界面
@@ -118,8 +119,8 @@ class Main extends egret.DisplayObjectContainer {
      */
     private createGameScene():void {
 
-        var id:string = "111";
-        var name:string = "Task1"
+        var id:string = "001";
+        var name:string = "Get the coin!"
         var task1 = new Task(id,name);
 
         var npc0:string = "npc_0"
@@ -127,12 +128,22 @@ class Main extends egret.DisplayObjectContainer {
         var npc_1 = new NPC();
         var npc_2 = new NPC();
         
-        task1.fromNPCid = npc0;
-        task1.toNPCid = npc1;
+        task1.setfromNPCid(npc0);
+        task1.settoNPCid(npc1);
+
         var taskPanel = new TaskPanel();
-        task1.status = TaskStatus.ACCEPTABLE;
+        task1.setStstus(TaskStatus.ACCEPTABLE);
 
-        npc_1.onchange(task1);
+        var service = new Taskservice();
+        service.addTask(task1);
+        this.addChild(npc_1.emoji);
+
+        //npc_1.onNPCClick();
+        this.stage.addEventListener(egret.TouchEvent.TOUCH_TAP,(e:egret.TouchEvent)=>{
+        npc_1.onNPCClick();
+        console.log("This bitmap has been touuched!2");
+        },this);
+        //npc_1.onchange(task1);
 
 
 
@@ -141,7 +152,7 @@ class Main extends egret.DisplayObjectContainer {
 
 
 
-        var sky:egret.Bitmap = this.createBitmapByName("bg_jpg");
+        /*var sky:egret.Bitmap = this.createBitmapByName("bg_jpg");
         this.addChild(sky);
         var stageW:number = this.stage.stageWidth;
         var stageH:number = this.stage.stageHeight;
@@ -194,23 +205,25 @@ class Main extends egret.DisplayObjectContainer {
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
         // Get asynchronously a json configuration file according to name keyword. As for the property of name please refer to the configuration file of resources/resource.json.
         RES.getResAsync("description_json", this.startAnimation, this)
-    }
+    }*/
 
     /**
      * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
      * Create a Bitmap object according to name keyword.As for the property of name please refer to the configuration file of resources/resource.json.
      */
-    private createBitmapByName(name:string):egret.Bitmap {
+    
+    /*private createBitmapByName(name:string):egret.Bitmap {
         var result = new egret.Bitmap();
         var texture:egret.Texture = RES.getRes(name);
         result.texture = texture;
         return result;
-    }
+    }*/
 
     /**
      * 描述文件加载成功，开始播放动画
      * Description file loading is successful, start to play the animation
      */
+    /*
     private startAnimation(result:Array<any>):void {
         var self:any = this;
 
@@ -239,7 +252,7 @@ class Main extends egret.DisplayObjectContainer {
         };
 
         change();
-
+        */
 
         
     }

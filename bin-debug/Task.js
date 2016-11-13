@@ -1,13 +1,4 @@
 // TypeScript file
-var Oberserver = (function () {
-    function Oberserver() {
-    }
-    var d = __define,c=Oberserver,p=c.prototype;
-    p.onchange = function (task) {
-    };
-    return Oberserver;
-}());
-egret.registerClass(Oberserver,'Oberserver');
 var taskNum = 0;
 var Task = (function () {
     function Task(id, name) {
@@ -16,6 +7,21 @@ var Task = (function () {
         console.log(this.id + ":" + this.name);
     }
     var d = __define,c=Task,p=c.prototype;
+    p.setStstus = function (status) {
+        this.status = status;
+    };
+    p.settoNPCid = function (id) {
+        this.toNPCid = id;
+    };
+    p.setfromNPCid = function (id) {
+        this.fromNPCid = id;
+    };
+    p.getfromNPCid = function () {
+        return this.fromNPCid;
+    };
+    p.gettoNPCid = function () {
+        return this.toNPCid;
+    };
     p.getid = function () {
         return this.id;
     };
@@ -32,18 +38,19 @@ var TaskPanel = (function () {
     function TaskPanel() {
     }
     var d = __define,c=TaskPanel,p=c.prototype;
-    //button;
     p.onchange = function (task) {
-        console.log("PanelonChange" + task.getname());
+        //console.log("PanelonChange"+task.getname());
+        this.task_textField.text = task.getid + " : " + task.getname;
     };
     return TaskPanel;
 }());
-egret.registerClass(TaskPanel,'TaskPanel');
+egret.registerClass(TaskPanel,'TaskPanel',["Oberserver"]);
 var DialoguePanel = (function () {
     function DialoguePanel() {
     }
     var d = __define,c=DialoguePanel,p=c.prototype;
     p.onButtonClick = function () {
+        this.button.addEventListener();
     };
     return DialoguePanel;
 }());
@@ -55,17 +62,20 @@ var NPC = (function () {
         this.emoji.texture = RES.getRes("task_png");
     }
     var d = __define,c=NPC,p=c.prototype;
+    /*fromnpc:string;
+    tonpc:string;
+    tast:string;*/
     p.onchange = function (task) {
+        //this.fromnpc = task.getfromNPCid();
+        //this.tonpc = task.gettoNPCid();
         console.log("NPConChange: " + task.getid + "," + task.getname());
     };
     p.onNPCClick = function () {
-        this.emoji.addEventListener(egret.TouchEvent.TOUCH_BEGIN, function (evt) {
-            var dia = new DialoguePanel();
-        }, this);
+        console.log("This bitmap has been touuched!1");
     };
     return NPC;
 }());
-egret.registerClass(NPC,'NPC');
+egret.registerClass(NPC,'NPC',["Oberserver"]);
 var Taskservice = (function () {
     function Taskservice() {
         this.oberserver = [];
@@ -73,11 +83,15 @@ var Taskservice = (function () {
     }
     var d = __define,c=Taskservice,p=c.prototype;
     p.addTask = function (task) {
+        //this.oberserver.
         if (task.getstatus() == TaskStatus.ACCEPTABLE) {
             this.taskList[taskNum] = task;
+            taskNum++;
+            console.log(task.getid() + "," + task.getname() + " has been added!");
         }
         if (task.getstatus() == TaskStatus.UNACCEPTABLE) {
-            console.log(task.getid() + "," + task.getname + " is UNACCEPTABLE!");
+            //alert(task.getid() + ","+task.getname() +" is UNACCEPTABLE!");
+            console.log(task.getid() + "," + task.getname() + " is UNACCEPTABLE!");
         }
     };
     p.finish = function (id) {
@@ -104,3 +118,4 @@ var TaskStatus;
     TaskStatus[TaskStatus["CAN_SUBMIT"] = 3] = "CAN_SUBMIT";
     TaskStatus[TaskStatus["SUBMITTED"] = 4] = "SUBMITTED"; //4
 })(TaskStatus || (TaskStatus = {}));
+//# sourceMappingURL=Task.js.map

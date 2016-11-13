@@ -101,42 +101,55 @@ var Main = (function (_super) {
      * Create a game scene
      */
     p.createGameScene = function () {
-        var id = "111";
-        var name = "Task1";
+        var id = "001";
+        var name = "Get the coin!";
         var task1 = new Task(id, name);
         var npc0 = "npc_0";
         var npc1 = "npc_1";
         var npc_1 = new NPC();
         var npc_2 = new NPC();
-        task1.fromNPCid = npc0;
-        task1.toNPCid = npc1;
+        task1.setfromNPCid(npc0);
+        task1.settoNPCid(npc1);
         var taskPanel = new TaskPanel();
-        task1.status = TaskStatus.ACCEPTABLE;
-        npc_1.onchange(task1);
-        var sky = this.createBitmapByName("bg_jpg");
+        task1.setStstus(TaskStatus.ACCEPTABLE);
+        var service = new Taskservice();
+        service.addTask(task1);
+        this.addChild(npc_1.emoji);
+        //npc_1.onNPCClick();
+        this.stage.addEventListener(egret.TouchEvent.TOUCH_TAP, function (e) {
+            npc_1.onNPCClick();
+            console.log("This bitmap has been touuched!2");
+        }, this);
+        //npc_1.onchange(task1);
+        /*var sky:egret.Bitmap = this.createBitmapByName("bg_jpg");
         this.addChild(sky);
-        var stageW = this.stage.stageWidth;
-        var stageH = this.stage.stageHeight;
+        var stageW:number = this.stage.stageWidth;
+        var stageH:number = this.stage.stageHeight;
         sky.width = stageW;
         sky.height = stageH;
+
         var topMask = new egret.Shape();
         topMask.graphics.beginFill(0x000000, 0.5);
         topMask.graphics.drawRect(0, 0, stageW, 172);
         topMask.graphics.endFill();
         topMask.y = 33;
         this.addChild(topMask);
-        var icon = this.createBitmapByName("egret_icon_png");
+
+        var icon:egret.Bitmap = this.createBitmapByName("egret_icon_png");
         this.addChild(icon);
         icon.x = 26;
         icon.y = 33;
+
         var line = new egret.Shape();
-        line.graphics.lineStyle(2, 0xffffff);
-        line.graphics.moveTo(0, 0);
-        line.graphics.lineTo(0, 117);
+        line.graphics.lineStyle(2,0xffffff);
+        line.graphics.moveTo(0,0);
+        line.graphics.lineTo(0,117);
         line.graphics.endFill();
         line.x = 172;
         line.y = 61;
         this.addChild(line);
+
+
         var colorLabel = new egret.TextField();
         colorLabel.textColor = 0xffffff;
         colorLabel.width = stageW - 172;
@@ -146,6 +159,7 @@ var Main = (function (_super) {
         colorLabel.x = 172;
         colorLabel.y = 80;
         this.addChild(colorLabel);
+
         var textfield = new egret.TextField();
         this.addChild(textfield);
         textfield.alpha = 0;
@@ -156,47 +170,55 @@ var Main = (function (_super) {
         textfield.x = 172;
         textfield.y = 135;
         this.textfield = textfield;
+
         //根据name关键字，异步获取一个json配置文件，name属性请参考resources/resource.json配置文件的内容。
         // Get asynchronously a json configuration file according to name keyword. As for the property of name please refer to the configuration file of resources/resource.json.
-        RES.getResAsync("description_json", this.startAnimation, this);
-    };
-    /**
-     * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
-     * Create a Bitmap object according to name keyword.As for the property of name please refer to the configuration file of resources/resource.json.
-     */
-    p.createBitmapByName = function (name) {
-        var result = new egret.Bitmap();
-        var texture = RES.getRes(name);
-        result.texture = texture;
-        return result;
-    };
-    /**
-     * 描述文件加载成功，开始播放动画
-     * Description file loading is successful, start to play the animation
-     */
-    p.startAnimation = function (result) {
-        var self = this;
-        var parser = new egret.HtmlTextParser();
-        var textflowArr = [];
-        for (var i = 0; i < result.length; i++) {
-            textflowArr.push(parser.parser(result[i]));
-        }
-        var textfield = self.textfield;
-        var count = -1;
-        var change = function () {
-            count++;
-            if (count >= textflowArr.length) {
-                count = 0;
+        RES.getResAsync("description_json", this.startAnimation, this)
+    }*/
+        /**
+         * 根据name关键字创建一个Bitmap对象。name属性请参考resources/resource.json配置文件的内容。
+         * Create a Bitmap object according to name keyword.As for the property of name please refer to the configuration file of resources/resource.json.
+         */
+        /*private createBitmapByName(name:string):egret.Bitmap {
+            var result = new egret.Bitmap();
+            var texture:egret.Texture = RES.getRes(name);
+            result.texture = texture;
+            return result;
+        }*/
+        /**
+         * 描述文件加载成功，开始播放动画
+         * Description file loading is successful, start to play the animation
+         */
+        /*
+        private startAnimation(result:Array<any>):void {
+            var self:any = this;
+    
+            var parser = new egret.HtmlTextParser();
+            var textflowArr:Array<Array<egret.ITextElement>> = [];
+            for (var i:number = 0; i < result.length; i++) {
+                textflowArr.push(parser.parser(result[i]));
             }
-            var lineArr = textflowArr[count];
-            self.changeDescription(textfield, lineArr);
-            var tw = egret.Tween.get(textfield);
-            tw.to({ "alpha": 1 }, 200);
-            tw.wait(2000);
-            tw.to({ "alpha": 0 }, 200);
-            tw.call(change, self);
-        };
-        change();
+    
+            var textfield = self.textfield;
+            var count = -1;
+            var change:Function = function () {
+                count++;
+                if (count >= textflowArr.length) {
+                    count = 0;
+                }
+                var lineArr = textflowArr[count];
+    
+                self.changeDescription(textfield, lineArr);
+    
+                var tw = egret.Tween.get(textfield);
+                tw.to({"alpha": 1}, 200);
+                tw.wait(2000);
+                tw.to({"alpha": 0}, 200);
+                tw.call(change, self);
+            };
+    
+            change();
+            */
     };
     /**
      * 切换描述内容
@@ -208,3 +230,4 @@ var Main = (function (_super) {
     return Main;
 }(egret.DisplayObjectContainer));
 egret.registerClass(Main,'Main');
+//# sourceMappingURL=Main.js.map
