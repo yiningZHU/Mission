@@ -119,11 +119,26 @@ class Main extends egret.DisplayObjectContainer {
     private createGameScene():void {
 
         var id:string = "111";
-        var name:string = "zhu"
-
-        var service = new TaskService();
+        var name:string = "Task1"
         var task1 = new Task(id,name);
-        task1.status = TaskStatus.CAN_SUBMIT;
+
+        var npc0:string = "npc_0"
+        var npc1:string = "npc_1"
+        var npc_1 = new NPC();
+        var npc_2 = new NPC();
+        
+        task1.fromNPCid = npc0;
+        task1.toNPCid = npc1;
+        var taskPanel = new TaskPanel();
+        task1.status = TaskStatus.ACCEPTABLE;
+
+        npc_1.onchange(task1);
+
+
+
+
+
+
 
 
         var sky:egret.Bitmap = this.createBitmapByName("bg_jpg");

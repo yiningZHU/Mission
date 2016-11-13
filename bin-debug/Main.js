@@ -102,10 +102,17 @@ var Main = (function (_super) {
      */
     p.createGameScene = function () {
         var id = "111";
-        var name = "zhu";
-        var service = new TaskService();
+        var name = "Task1";
         var task1 = new Task(id, name);
-        task1.status = TaskStatus.CAN_SUBMIT;
+        var npc0 = "npc_0";
+        var npc1 = "npc_1";
+        var npc_1 = new NPC();
+        var npc_2 = new NPC();
+        task1.fromNPCid = npc0;
+        task1.toNPCid = npc1;
+        var taskPanel = new TaskPanel();
+        task1.status = TaskStatus.ACCEPTABLE;
+        npc_1.onchange(task1);
         var sky = this.createBitmapByName("bg_jpg");
         this.addChild(sky);
         var stageW = this.stage.stageWidth;
@@ -201,4 +208,3 @@ var Main = (function (_super) {
     return Main;
 }(egret.DisplayObjectContainer));
 egret.registerClass(Main,'Main');
-//# sourceMappingURL=Main.js.map
