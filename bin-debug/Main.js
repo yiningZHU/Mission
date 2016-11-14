@@ -101,26 +101,31 @@ var Main = (function (_super) {
      * Create a game scene
      */
     p.createGameScene = function () {
+        var _this = this;
+        var service = Taskservice.instance;
+        var dialogurPanel = new DialoguePanel();
+        var taskPanel = new TaskPanel();
+        service.addObserver(taskPanel);
         var id = "001";
         var name = "Get the coin!";
         var task1 = new Task(id, name);
         var npc0 = "npc_0";
         var npc1 = "npc_1";
         var npc_1 = new NPC();
+        service.addObserver(npc_1);
         var npc_2 = new NPC();
+        service.addObserver(npc_2);
         task1.setfromNPCid(npc0);
         task1.settoNPCid(npc1);
-        var taskPanel = new TaskPanel();
-        task1.setStstus(TaskStatus.ACCEPTABLE);
-        var service = new Taskservice();
+        task1.setStatus(TaskStatus.ACCEPTABLE);
         service.addTask(task1);
         this.addChild(npc_1.emoji);
-        //npc_1.onNPCClick();
+        //当我点击fromNPC的图标
         this.stage.addEventListener(egret.TouchEvent.TOUCH_TAP, function (e) {
             npc_1.onNPCClick();
+            _this.addChild(dialogurPanel.dialogue_textField);
             console.log("This bitmap has been touuched!2");
         }, this);
-        //npc_1.onchange(task1);
         /*var sky:egret.Bitmap = this.createBitmapByName("bg_jpg");
         this.addChild(sky);
         var stageW:number = this.stage.stageWidth;

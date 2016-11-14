@@ -1,5 +1,6 @@
 // TypeScript file
 var taskNum = 0;
+var obserNum = 0;
 var Task = (function () {
     function Task(id, name) {
         this.id = id;
@@ -7,7 +8,7 @@ var Task = (function () {
         console.log(this.id + ":" + this.name);
     }
     var d = __define,c=Task,p=c.prototype;
-    p.setStstus = function (status) {
+    p.setStatus = function (status) {
         this.status = status;
     };
     p.settoNPCid = function (id) {
@@ -28,7 +29,7 @@ var Task = (function () {
     p.getname = function () {
         return this.name;
     };
-    p.getstatus = function () {
+    p.getStatus = function () {
         return this.status;
     };
     return Task;
@@ -36,6 +37,7 @@ var Task = (function () {
 egret.registerClass(Task,'Task');
 var TaskPanel = (function () {
     function TaskPanel() {
+        this.task_textField = new egret.TextField();
     }
     var d = __define,c=TaskPanel,p=c.prototype;
     p.onchange = function (task) {
@@ -45,63 +47,114 @@ var TaskPanel = (function () {
     return TaskPanel;
 }());
 egret.registerClass(TaskPanel,'TaskPanel',["Oberserver"]);
-var DialoguePanel = (function () {
+var DialoguePanel = (function (_super) {
+    __extends(DialoguePanel, _super);
     function DialoguePanel() {
+        _super.call(this);
+        this.dialogue_textField = new egret.TextField();
+        this.dialogue_textField.text = "111111";
+        //this.addChild(this.dialogue_textField);
     }
     var d = __define,c=DialoguePanel,p=c.prototype;
     p.onButtonClick = function () {
-        this.button.addEventListener();
     };
     return DialoguePanel;
-}());
+}(egret.DisplayObjectContainer));
 egret.registerClass(DialoguePanel,'DialoguePanel');
 var NPC = (function () {
-    //textrue:egret.Texture = RES.getRes("task_png");
     function NPC() {
+        this.service = Taskservice.instance;
         this.emoji = new egret.Bitmap();
         this.emoji.texture = RES.getRes("task_png");
     }
     var d = __define,c=NPC,p=c.prototype;
-    /*fromnpc:string;
-    tonpc:string;
-    tast:string;*/
     p.onchange = function (task) {
-        //this.fromnpc = task.getfromNPCid();
-        //this.tonpc = task.gettoNPCid();
+        this.t = task;
         console.log("NPConChange: " + task.getid + "," + task.getname());
     };
     p.onNPCClick = function () {
+        //var diapanel = new DialoguePanel();
+        //diapanel.dialogue_textField.text="Do you want to accept "+" ? ";
+        this.emoji.texture = RES.getRes("taskfinish_png");
         console.log("This bitmap has been touuched!1");
+    };
+    p.init_rule = function () {
+        var rule = function (taskList) {
+            for (var id in taskList) {
+                var task = taskList[id];
+                if (task.getStatus() == TaskStatus.CAN_SUBMIT) {
+                    return task;
+                }
+            }
+            for (var id in taskList) {
+                var task = taskList[id];
+                if (task.getStatus() == TaskStatus.ACCEPTABLE) {
+                    return task;
+                }
+            }
+        };
+        this.service.getTaskByCustomRule(rule);
     };
     return NPC;
 }());
 egret.registerClass(NPC,'NPC',["Oberserver"]);
 var Taskservice = (function () {
     function Taskservice() {
-        this.oberserver = [];
+        this.oberserverList = [];
         this.taskList = [];
     }
     var d = __define,c=Taskservice,p=c.prototype;
     p.addTask = function (task) {
         //this.oberserver.
-        if (task.getstatus() == TaskStatus.ACCEPTABLE) {
-            this.taskList[taskNum] = task;
+        if (task.getStatus() == TaskStatus.ACCEPTABLE) {
+            this.taskList[task.getid()] = task;
+            console.log(this.taskList[task.getid()]);
+            //this.oberserver[] = ;
+            //console.log(task.getid() + "," + task.getname() + "," + task.getStatus());
+            task.setStatus(TaskStatus.DURING);
             taskNum++;
-            console.log(task.getid() + "," + task.getname() + " has been added!");
+            console.log(task.getid() + "," + task.getname() + " has been added!" + task.getStatus(), this.taskList[task.getid()].getStatus());
         }
-        if (task.getstatus() == TaskStatus.UNACCEPTABLE) {
-            //alert(task.getid() + ","+task.getname() +" is UNACCEPTABLE!");
+        if (task.getStatus() == TaskStatus.UNACCEPTABLE) {
+            alert(task.getid() + "," + task.getname() + " is UNACCEPTABLE!");
             console.log(task.getid() + "," + task.getname() + " is UNACCEPTABLE!");
         }
     };
+    p.addObserver = function (o) {
+        this.oberserverList.push(o);
+        obserNum++;
+        console.log("an Observer has been added!  " + obserNum);
+    };
     p.finish = function (id) {
+        if (id == null) {
+            return ErroCode.ERRO_TASK;
+        }
+        if (this.taskList[id] == null) {
+            return ErroCode.MISSING_MISSION;
+        }
+        console.log("Finish Task " + this.taskList[id] + this.taskList[name]);
+        var task;
+        task = this.taskList[id];
+        if (task.getStatus() == TaskStatus.CAN_SUBMIT) {
+            task.setStatus(TaskStatus.SUBMITTED);
+            this.notify(task);
+            return ErroCode.SUCCESS;
+        }
+        else
+            return ErroCode.ERRO_TASK;
     };
     p.accpet = function (id) {
     };
-    p.getTaskByCustomRole = function (rule) {
+    p.getTaskByCustomRule = function (rule) {
+        console.log(this.taskList);
+        return rule(this.taskList);
     };
-    p.notify = function () {
+    p.notify = function (task) {
+        for (var i in this.oberserverList) {
+            this.oberserverList[i].onchange(task);
+        }
     };
+    Taskservice.instance = new Taskservice();
     return Taskservice;
 }());
 egret.registerClass(Taskservice,'Taskservice');
@@ -109,6 +162,7 @@ var ErroCode;
 (function (ErroCode) {
     ErroCode[ErroCode["SUCCESS"] = 0] = "SUCCESS";
     ErroCode[ErroCode["ERRO_TASK"] = 1] = "ERRO_TASK";
+    ErroCode[ErroCode["MISSING_MISSION"] = 2] = "MISSING_MISSION";
 })(ErroCode || (ErroCode = {}));
 var TaskStatus;
 (function (TaskStatus) {

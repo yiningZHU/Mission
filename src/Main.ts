@@ -36,7 +36,8 @@ class Main extends egret.DisplayObjectContainer
      */
     private loadingView:LoadingUI;
 
-    public constructor() {
+    public constructor() 
+    {
         super();
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
     }
@@ -119,31 +120,37 @@ class Main extends egret.DisplayObjectContainer
      */
     private createGameScene():void {
 
+        var service = Taskservice.instance;
+        var dialogurPanel = new DialoguePanel(); 
+        var taskPanel = new TaskPanel();
+        service.addObserver(taskPanel);
+
         var id:string = "001";
         var name:string = "Get the coin!"
         var task1 = new Task(id,name);
-
         var npc0:string = "npc_0"
         var npc1:string = "npc_1"
+
         var npc_1 = new NPC();
+        service.addObserver(npc_1);
         var npc_2 = new NPC();
+        service.addObserver(npc_2);
         
         task1.setfromNPCid(npc0);
         task1.settoNPCid(npc1);
-
-        var taskPanel = new TaskPanel();
-        task1.setStstus(TaskStatus.ACCEPTABLE);
-
-        var service = new Taskservice();
+        
+        task1.setStatus(TaskStatus.ACCEPTABLE);
         service.addTask(task1);
         this.addChild(npc_1.emoji);
 
-        //npc_1.onNPCClick();
+        //当我点击fromNPC的图标
         this.stage.addEventListener(egret.TouchEvent.TOUCH_TAP,(e:egret.TouchEvent)=>{
         npc_1.onNPCClick();
+        this.addChild(dialogurPanel.dialogue_textField);
         console.log("This bitmap has been touuched!2");
         },this);
-        //npc_1.onchange(task1);
+
+
 
 
 

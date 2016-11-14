@@ -2,6 +2,7 @@
 
 
 var taskNum:number = 0;
+var obserNum:number =0 ;
 
 class Task
 {
@@ -22,7 +23,7 @@ class Task
         console.log(this.id+":"+this.name);
     }
 
-    public setStstus(status:TaskStatus)
+    public setStatus(status:TaskStatus)
     {
         this.status = status;
     }
@@ -55,7 +56,7 @@ class Task
         return this.name;
     }
 
-    public getstatus():TaskStatus
+    public getStatus():TaskStatus
     {
         return this.status;   
     }
@@ -66,6 +67,12 @@ class Task
 class TaskPanel implements Oberserver
 {
     task_textField:egret.TextField;
+
+    constructor()
+    {
+        this.task_textField = new egret.TextField();
+
+    }
 
     onchange(task:Task)
     {
@@ -79,67 +86,130 @@ class DialoguePanel
 {
     dialogue_textField:egret.TextField;
     button:any;///?
-    
+    constructor()
+    {
+        this.dialogue_textField = new egret.TextField();
+        this.dialogue_textField.text = "Do you want to accept this mission?";
+        //this.addChild(this.dialogue_textField);
+    }
+
     public onButtonClick()
     {
-        
+
     }
     
 }
 
 class NPC implements Oberserver
 {
-    /*fromnpc:string;
-    tonpc:string;
-    tast:string;*/
-    onchange(task:Task)
-    {
-        //this.fromnpc = task.getfromNPCid();
-        //this.tonpc = task.gettoNPCid();
-        console.log("NPConChange: "+task.getid+","+task.getname());
-    }
-    
-
+    private _taskStatus:TaskStatus;
     emoji:egret.Bitmap;
-    
-    //textrue:egret.Texture = RES.getRes("task_png");
+    t:Task;
+    service:Taskservice = Taskservice.instance;
     constructor()
     {
         this.emoji = new egret.Bitmap();
         this.emoji.texture = RES.getRes("task_png");
     }
-
-    onNPCClick()
+    
+    
+    onchange(task:Task)
     {
-        var diapanel = new DialoguePanel();
+        this.t = task;
+        console.log("NPConChange: "+task.getid+","+task.getname());
+    }
+
+    onNPCClick()//切换NPC上方的图标？
+    { 
+        //var diapanel = new DialoguePanel();
+        //diapanel.dialogue_textField.text="Do you want to accept "+" ? ";
+        this.emoji.texture = RES.getRes("taskfinish_png");
         console.log("This bitmap has been touuched!1");
     }
    
+   init_rule()
+   {
+       let rule=(taskList) => 
+       {
+           for(var id in taskList)
+           {
+               var task = taskList[id];
+               if(task.getStatus() == TaskStatus.CAN_SUBMIT)
+               {
+                   return task;
+               }
+           }
+           for(var id in taskList)
+           {
+               var task = taskList[id];
+               if(task.getStatus() == TaskStatus.ACCEPTABLE)
+               {
+                   return task;
+               }
+           }
+       }
+       this.service.getTaskByCustomRule(rule);
+   }
+
 }
 
 class Taskservice 
 {
-    private oberserver:Oberserver[]=[];
+    static instance = new Taskservice();
+
+    private oberserverList:Oberserver[]=[];
     private taskList:Task[]=[];
     
     public addTask(task:Task)
     {
         //this.oberserver.
-        if(task.getstatus() == TaskStatus.ACCEPTABLE)
+        if(task.getStatus() == TaskStatus.ACCEPTABLE)
         {
-            this.taskList[taskNum] = task;
+            this.taskList[task.getid()] = task;
+            console.log(this.taskList[task.getid()]);
+            //this.oberserver[] = ;
+            //console.log(task.getid() + "," + task.getname() + "," + task.getStatus());
+            task.setStatus(TaskStatus.DURING);
             taskNum++;
-            console.log(task.getid() + "," + task.getname() + " has been added!");
+            console.log(task.getid() + "," + task.getname() + " has been added!" + task.getStatus(),this.taskList[task.getid()].getStatus());
         }
-        if(task.getstatus() == TaskStatus.UNACCEPTABLE)
+        if(task.getStatus() == TaskStatus.UNACCEPTABLE)
         {
-            //alert(task.getid() + ","+task.getname() +" is UNACCEPTABLE!");
+            alert(task.getid() + ","+task.getname() +" is UNACCEPTABLE!");
             console.log(task.getid() + ","+task.getname() +" is UNACCEPTABLE!");
         }
     }
 
+    public addObserver(o:Oberserver)
+    {
+        this.oberserverList.push(o);
+        obserNum++;
+        console.log("an Observer has been added!  "+ obserNum);
+    }
+
     public finish(id:string):ErroCode
     {
+        if(id == null)
+        {
+            return ErroCode.ERRO_TASK;
+        }
+        
+        if(this.taskList[id] == null)
+        {
+            return ErroCode.MISSING_MISSION;
+        }
+        console.log("Finish Task " + this.taskList[id] + this.taskList[name] );
+
+        var task:Task;
+        task = this.taskList[id];
+        if(task.getStatus() == TaskStatus.CAN_SUBMIT)
+        {
+            task.setStatus(TaskStatus.SUBMITTED);
+            this.notify(task);
+            return ErroCode.SUCCESS;
+        }
+        else
+        return ErroCode.ERRO_TASK;
 
     }
 
@@ -148,17 +218,23 @@ class Taskservice
         
     }
 
-    public getTaskByCustomRole(rule:Function):Task//?
-    {
-
+    public getTaskByCustomRule(rule:Function):Task//?
+    {   
+        console.log(this.taskList);
+        return rule(this.taskList);
     }
-    public notify():void
+
+    public notify(task:Task):void
     {
-        
+        for(var i in this.oberserverList)
+        {
+            this.oberserverList[i].onchange(task);
+        }
     }
 
 
 }
+
 interface  Oberserver
 {
     onchange(task:Task);
@@ -166,7 +242,7 @@ interface  Oberserver
 }
 enum ErroCode
 {
-    SUCCESS,ERRO_TASK
+    SUCCESS,ERRO_TASK,MISSING_MISSION
 }
 
 enum TaskStatus
