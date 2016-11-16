@@ -36,47 +36,15 @@ var Task = (function () {
 }());
 egret.registerClass(Task,'Task');
 var TaskPanel = (function () {
+    //_taskService:Taskservice;
     function TaskPanel() {
         this.task_textField = new egret.TextField();
     }
     var d = __define,c=TaskPanel,p=c.prototype;
     p.onchange = function (task) {
         //console.log("PanelonChange"+task.getname());
-        this.task_textField.text = task.getid + " : " + task.getname;
-    };
-    return TaskPanel;
-}());
-egret.registerClass(TaskPanel,'TaskPanel',["Oberserver"]);
-var DialoguePanel = (function (_super) {
-    __extends(DialoguePanel, _super);
-    function DialoguePanel() {
-        _super.call(this);
-        this.dialogue_textField = new egret.TextField();
-        this.dialogue_textField.text = "111111";
-        //this.addChild(this.dialogue_textField);
-    }
-    var d = __define,c=DialoguePanel,p=c.prototype;
-    p.onButtonClick = function () {
-    };
-    return DialoguePanel;
-}(egret.DisplayObjectContainer));
-egret.registerClass(DialoguePanel,'DialoguePanel');
-var NPC = (function () {
-    function NPC() {
-        this.service = Taskservice.instance;
-        this.emoji = new egret.Bitmap();
-        this.emoji.texture = RES.getRes("task_png");
-    }
-    var d = __define,c=NPC,p=c.prototype;
-    p.onchange = function (task) {
-        this.t = task;
-        console.log("NPConChange: " + task.getid + "," + task.getname());
-    };
-    p.onNPCClick = function () {
-        //var diapanel = new DialoguePanel();
-        //diapanel.dialogue_textField.text="Do you want to accept "+" ? ";
-        this.emoji.texture = RES.getRes("taskfinish_png");
-        console.log("This bitmap has been touuched!1");
+        this.task = task;
+        this.task_textField.text = task.getid() + " : " + task.getname();
     };
     p.init_rule = function () {
         var rule = function (taskList) {
@@ -93,17 +61,88 @@ var NPC = (function () {
                 }
             }
         };
-        this.service.getTaskByCustomRule(rule);
+    };
+    return TaskPanel;
+}());
+egret.registerClass(TaskPanel,'TaskPanel',["Oberserver"]);
+var DialoguePanel = (function () {
+    //button:egret.Shape;
+    //background:egret.Shape;
+    //task:Task;
+    function DialoguePanel() {
+        this.dialogue_textField = new egret.TextField();
+        this.accept = new egret.TextField();
+        this.dialogue_textField.text = "Do you want to accept this TASK ?";
+        this.accept.text = "Accept";
+    }
+    var d = __define,c=DialoguePanel,p=c.prototype;
+    p.onButtonClick = function () {
+        var _this = this;
+        this.accept.addEventListener(egret.TouchEvent.TOUCH_TAP, function (e) {
+            _this.dialogue_textField.text = "This TASK has been accepted.";
+            console.log("This ACCEPT has been touuched!");
+        }, this);
+    };
+    return DialoguePanel;
+}());
+egret.registerClass(DialoguePanel,'DialoguePanel');
+var NPC = (function () {
+    function NPC() {
+        this.emoji = new egret.Bitmap();
+        this.emoji.texture = RES.getRes("task_png");
+        //this.service.setInstance(this.service);
+    }
+    var d = __define,c=NPC,p=c.prototype;
+    //对于图标的改变，应该在NPC的onchange（）之中改变，因为这个贴图的改变是根据状态决定，而不是点击
+    p.onchange = function (task) {
+        this.t = task;
+        var id = this.t.getid();
+        var name = this.t.getname();
+        if (task.getStatus() == TaskStatus.ACCEPTABLE) {
+            this.emoji.texture = RES.getRes("taskfinish_png");
+        }
+        console.log("NPConChange: " + task.getid + "," + task.getname());
+    };
+    p.onNPCClick = function (diapanel) {
+        console.log("This diapanel has been added!");
     };
     return NPC;
 }());
 egret.registerClass(NPC,'NPC',["Oberserver"]);
 var Taskservice = (function () {
     function Taskservice() {
+        //private static instance = new Taskservice();
+        //private static count:number = 0;
         this.oberserverList = [];
         this.taskList = [];
     }
     var d = __define,c=Taskservice,p=c.prototype;
+    //constructor()
+    //{
+    //Taskservice.count++;
+    //if(Taskservice.count>1)
+    ///{
+    //throw "singletton!!!";
+    //}
+    //}
+    /*public setInstance(_instance)
+    {
+        if(Taskservice.instance == null)
+        {
+            Taskservice.instance = new Taskservice();
+            _instance = Taskservice.instance;
+        }
+        else
+            _instance = Taskservice.instance;
+    }*/
+    /*public getInstance()
+    {
+        if(Taskservice.instance==null)
+        {
+            Taskservice.instance = new Taskservice();
+        }
+        return Taskservice.instance;
+    }*/
     p.addTask = function (task) {
         //this.oberserver.
         if (task.getStatus() == TaskStatus.ACCEPTABLE) {
@@ -111,7 +150,7 @@ var Taskservice = (function () {
             console.log(this.taskList[task.getid()]);
             //this.oberserver[] = ;
             //console.log(task.getid() + "," + task.getname() + "," + task.getStatus());
-            task.setStatus(TaskStatus.DURING);
+            //task.setStatus(TaskStatus.DURING);
             taskNum++;
             console.log(task.getid() + "," + task.getname() + " has been added!" + task.getStatus(), this.taskList[task.getid()].getStatus());
         }
@@ -144,6 +183,8 @@ var Taskservice = (function () {
             return ErroCode.ERRO_TASK;
     };
     p.accpet = function (id) {
+        if (this.taskList[id] == TaskStatus.SUBMITTED) {
+        }
     };
     p.getTaskByCustomRule = function (rule) {
         console.log(this.taskList);
@@ -154,7 +195,6 @@ var Taskservice = (function () {
             this.oberserverList[i].onchange(task);
         }
     };
-    Taskservice.instance = new Taskservice();
     return Taskservice;
 }());
 egret.registerClass(Taskservice,'Taskservice');

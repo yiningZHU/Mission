@@ -67,68 +67,24 @@ class Task
 class TaskPanel implements Oberserver
 {
     task_textField:egret.TextField;
+    task:Task;
+    //_taskService:Taskservice;
 
     constructor()
     {
         this.task_textField = new egret.TextField();
-
     }
-
+    
     onchange(task:Task)
     {
         //console.log("PanelonChange"+task.getname());
-        this.task_textField.text = task.getid+" : " + task.getname;
+        this.task = task;
+        this.task_textField.text = task.getid() + " : " + task.getname();
     }
-    
-}
 
-class DialoguePanel
-{
-    dialogue_textField:egret.TextField;
-    button:any;///?
-    constructor()
+
+    init_rule()
     {
-        this.dialogue_textField = new egret.TextField();
-        this.dialogue_textField.text = "Do you want to accept this mission?";
-        //this.addChild(this.dialogue_textField);
-    }
-
-    public onButtonClick()
-    {
-
-    }
-    
-}
-
-class NPC implements Oberserver
-{
-    private _taskStatus:TaskStatus;
-    emoji:egret.Bitmap;
-    t:Task;
-    service:Taskservice = Taskservice.instance;
-    constructor()
-    {
-        this.emoji = new egret.Bitmap();
-        this.emoji.texture = RES.getRes("task_png");
-    }
-    
-    
-    onchange(task:Task)
-    {
-        this.t = task;
-        console.log("NPConChange: "+task.getid+","+task.getname());
-    }
-
-    onNPCClick()//切换NPC上方的图标？
-    { 
-        //var diapanel = new DialoguePanel();
-        //diapanel.dialogue_textField.text="Do you want to accept "+" ? ";
-        this.emoji.texture = RES.getRes("taskfinish_png");
-        console.log("This bitmap has been touuched!1");
-    }
-   
-   init_rule()
-   {
        let rule=(taskList) => 
        {
            for(var id in taskList)
@@ -148,18 +104,106 @@ class NPC implements Oberserver
                }
            }
        }
-       this.service.getTaskByCustomRule(rule);
-   }
+     }
+}
+
+class DialoguePanel
+{
+    dialogue_textField:egret.TextField;
+    accept:egret.TextField;
+    //button:egret.Shape;
+    //background:egret.Shape;
+    //task:Task;
+
+    constructor()
+    {
+        this.dialogue_textField = new egret.TextField();
+        this.accept = new egret.TextField();
+        this.dialogue_textField.text = "Do you want to accept this TASK ?";
+        this.accept.text = "Accept";
+
+    }
+
+    public onButtonClick()
+    {
+        this.accept.addEventListener(egret.TouchEvent.TOUCH_TAP,(e:egret.TouchEvent)=>{
+        this.dialogue_textField.text = "This TASK has been accepted.";  
+        console.log("This ACCEPT has been touuched!");
+        },this);
+
+    }
+    
+}
+
+class NPC implements Oberserver 
+{
+
+    emoji:egret.Bitmap;
+    t:Task;
+    service:Taskservice;
+    constructor()
+    {
+        this.emoji = new egret.Bitmap();
+        this.emoji.texture = RES.getRes("task_png");
+        //this.service.setInstance(this.service);
+    }
+    
+    //对于图标的改变，应该在NPC的onchange（）之中改变，因为这个贴图的改变是根据状态决定，而不是点击
+    onchange(task:Task)
+    {
+        this.t = task;
+        var id:string = this.t.getid();
+        var name:string = this.t.getname();
+        if(task.getStatus() == TaskStatus.ACCEPTABLE)
+        {
+            this.emoji.texture = RES.getRes("taskfinish_png");
+        }
+        console.log("NPConChange: "+task.getid+","+task.getname());
+    }
+
+    onNPCClick(diapanel:DialoguePanel)//点击弹出对话面板
+    {
+        console.log("This diapanel has been added!");
+    }
 
 }
 
 class Taskservice 
 {
-    static instance = new Taskservice();
-
+    //private static instance = new Taskservice();
+    //private static count:number = 0;
     private oberserverList:Oberserver[]=[];
     private taskList:Task[]=[];
     
+    //constructor()
+    //{
+        //Taskservice.count++;
+        //if(Taskservice.count>1)
+        ///{
+            //throw "singletton!!!";
+        //}
+    //}
+
+    /*public setInstance(_instance)
+    {
+        if(Taskservice.instance == null)
+        {
+            Taskservice.instance = new Taskservice();
+            _instance = Taskservice.instance;
+        }
+        else
+            _instance = Taskservice.instance;
+    }*/
+
+    /*public getInstance()
+    {
+        if(Taskservice.instance==null)
+        {
+            Taskservice.instance = new Taskservice();
+        }
+        return Taskservice.instance;
+    }*/
+
     public addTask(task:Task)
     {
         //this.oberserver.
@@ -169,7 +213,7 @@ class Taskservice
             console.log(this.taskList[task.getid()]);
             //this.oberserver[] = ;
             //console.log(task.getid() + "," + task.getname() + "," + task.getStatus());
-            task.setStatus(TaskStatus.DURING);
+            //task.setStatus(TaskStatus.DURING);
             taskNum++;
             console.log(task.getid() + "," + task.getname() + " has been added!" + task.getStatus(),this.taskList[task.getid()].getStatus());
         }
@@ -215,7 +259,10 @@ class Taskservice
 
     public accpet(id:string):void//?
     {
-        
+        if(this.taskList[id] == TaskStatus.SUBMITTED)
+        {
+
+        }
     }
 
     public getTaskByCustomRule(rule:Function):Task//?

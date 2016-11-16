@@ -120,8 +120,7 @@ class Main extends egret.DisplayObjectContainer
      */
     private createGameScene():void {
 
-        var service = Taskservice.instance;
-        var dialogurPanel = new DialoguePanel(); 
+        var service = new Taskservice();
         var taskPanel = new TaskPanel();
         service.addObserver(taskPanel);
 
@@ -130,7 +129,7 @@ class Main extends egret.DisplayObjectContainer
         var task1 = new Task(id,name);
         var npc0:string = "npc_0"
         var npc1:string = "npc_1"
-
+        var dialogurPanel = new DialoguePanel(); 
         var npc_1 = new NPC();
         service.addObserver(npc_1);
         var npc_2 = new NPC();
@@ -142,13 +141,32 @@ class Main extends egret.DisplayObjectContainer
         task1.setStatus(TaskStatus.ACCEPTABLE);
         service.addTask(task1);
         this.addChild(npc_1.emoji);
-
+        npc_1.emoji.x = 100;
+        npc_1.emoji.y = 100; 
+        this.addChild(taskPanel.task_textField);
         //当我点击fromNPC的图标
         this.stage.addEventListener(egret.TouchEvent.TOUCH_TAP,(e:egret.TouchEvent)=>{
-        npc_1.onNPCClick();
+        npc_1.onNPCClick(dialogurPanel);
+        dialogurPanel.dialogue_textField.x = npc_1.emoji.x;
+        dialogurPanel.dialogue_textField.y = npc_1.emoji.y - 50;
+        dialogurPanel.accept.x = dialogurPanel.dialogue_textField.x + 100;
+        dialogurPanel.accept.y = dialogurPanel.dialogue_textField.y + 50;
+        //this.addChild(dialogurPanel.button);
+        dialogurPanel.dialogue_textField.textAlign = egret.HorizontalAlign.CENTER;
+        dialogurPanel.dialogue_textField.textAlign = egret.VerticalAlign.MIDDLE;
+        //dialogurPanel.background.x = dialogurPanel.dialogue_textField.x;
+        //dialogurPanel.background.y = dialogurPanel.dialogue_textField.y;
         this.addChild(dialogurPanel.dialogue_textField);
+        this.addChild(dialogurPanel.accept);
+        //this.addChild(dialogurPanel.background);
         console.log("This bitmap has been touuched!2");
         },this);
+
+        dialogurPanel.onButtonClick();
+        //当我点击接受按钮的时候
+        //this.addEventListener(egret.TouchEvent.TOUCH_TAP,(e:egret.TouchEvent)=>{
+        
+        //},this);
 
 
 
