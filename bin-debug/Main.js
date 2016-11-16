@@ -111,6 +111,8 @@ var Main = (function (_super) {
         var npc0 = "npc_0";
         var npc1 = "npc_1";
         var dialogurPanel = new DialoguePanel();
+        var pic_MissionStart = "task_png";
+        var pic_MissionFinish = "taskfinish_png";
         var npc_1 = new NPC();
         service.addObserver(npc_1);
         var npc_2 = new NPC();
@@ -119,12 +121,15 @@ var Main = (function (_super) {
         task1.settoNPCid(npc1);
         task1.setStatus(TaskStatus.ACCEPTABLE);
         service.addTask(task1);
-        this.addChild(npc_1.emoji);
+        npc_1.seiEmoji(pic_MissionStart);
+        npc_2.seiEmoji(pic_MissionFinish);
+        //this.addChild(npc_1.emoji);
         npc_1.emoji.x = 100;
         npc_1.emoji.y = 100;
         this.addChild(taskPanel.task_textField);
         //当我点击fromNPC的图标
         this.stage.addEventListener(egret.TouchEvent.TOUCH_TAP, function (e) {
+            console.log("This bitmap has been touuched!2");
             npc_1.onNPCClick(dialogurPanel);
             dialogurPanel.dialogue_textField.x = npc_1.emoji.x;
             dialogurPanel.dialogue_textField.y = npc_1.emoji.y - 50;
@@ -138,7 +143,6 @@ var Main = (function (_super) {
             _this.addChild(dialogurPanel.dialogue_textField);
             _this.addChild(dialogurPanel.accept);
             //this.addChild(dialogurPanel.background);
-            console.log("This bitmap has been touuched!2");
         }, this);
         dialogurPanel.onButtonClick();
         //当我点击接受按钮的时候

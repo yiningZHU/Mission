@@ -89,10 +89,12 @@ egret.registerClass(DialoguePanel,'DialoguePanel');
 var NPC = (function () {
     function NPC() {
         this.emoji = new egret.Bitmap();
-        this.emoji.texture = RES.getRes("task_png");
-        //this.service.setInstance(this.service);
+        this.service = new Taskservice();
     }
     var d = __define,c=NPC,p=c.prototype;
+    p.seiEmoji = function (picName) {
+        this.emoji.texture = RES.getRes(picName);
+    };
     //对于图标的改变，应该在NPC的onchange（）之中改变，因为这个贴图的改变是根据状态决定，而不是点击
     p.onchange = function (task) {
         this.t = task;

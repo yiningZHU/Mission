@@ -13,8 +13,8 @@ class Task
     private status:TaskStatus;
 
     private desc:string;
-    private fromNPCid:string;
-    private toNPCid:string;
+    public fromNPCid:string;
+    public toNPCid:string;
 
     constructor(id:string,name:string)
     {
@@ -141,29 +141,39 @@ class NPC implements Oberserver
     emoji:egret.Bitmap;
     t:Task;
     service:Taskservice;
-    constructor()
+    currentid:string;
+    constructor(id:string)
     {
         this.emoji = new egret.Bitmap();
-        this.emoji.texture = RES.getRes("task_png");
-        //this.service.setInstance(this.service);
+        this.service = new Taskservice();
+        this.currentid = id;
     }
     
+    public seiEmoji(picName:string)
+    {
+        this.emoji.texture = RES.getRes(picName);
+    }
+
     //对于图标的改变，应该在NPC的onchange（）之中改变，因为这个贴图的改变是根据状态决定，而不是点击
     onchange(task:Task)
     {
         this.t = task;
         var id:string = this.t.getid();
         var name:string = this.t.getname();
-        if(task.getStatus() == TaskStatus.ACCEPTABLE)
+        if(task.getStatus() == TaskStatus.ACCEPTABLE && this.t.fromNPCid == this.currentid)
         {
             this.emoji.texture = RES.getRes("taskfinish_png");
         }
         console.log("NPConChange: "+task.getid+","+task.getname());
     }
 
-    onNPCClick(diapanel:DialoguePanel)//点击弹出对话面板
+    onNPCClick(e:egret.TouchEvent)//点击弹出对话面板
     {
         console.log("This diapanel has been added!");
+        if(this.t.getStatus() == TaskStatus.ACCEPTABLE && this.t.)
+        {
+
+        }
     }
 
 }
