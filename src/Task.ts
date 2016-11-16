@@ -170,7 +170,7 @@ class NPC implements Oberserver
     onNPCClick(e:egret.TouchEvent)//点击弹出对话面板
     {
         console.log("This diapanel has been added!");
-        if(this.t.getStatus() == TaskStatus.ACCEPTABLE && this.t.)
+        if(this.t.getStatus() == TaskStatus.ACCEPTABLE && this.t.fromNPCid == this.currentid)
         {
 
         }
